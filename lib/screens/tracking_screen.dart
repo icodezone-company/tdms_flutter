@@ -72,7 +72,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                 controller: _horizontalController,
                 scrollbarOrientation: ScrollbarOrientation.bottom,
                 child: TableView.builder(
-                  diagonalDragBehavior: DiagonalDragBehavior.free,
+                  // diagonalDragBehavior: DiagonalDragBehavior.free,
                   horizontalDetails: ScrollableDetails(
                     direction: AxisDirection.left,
                     controller: _horizontalController,
@@ -177,8 +177,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
                                     isLoading = true;
                                     setState(() {});
                                     await startWork(body);
-                                    isLoading = false;
-                                    setState(() {});
+                                    if (!context.mounted) return;
+                                    Navigator.of(context).pop(true);
                                   },
                           ),
                         ),
@@ -216,8 +216,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
                                     isLoading = true;
                                     setState(() {});
                                     await sendTo(body);
-                                    isLoading = false;
-                                    setState(() {});
+                                    if (!context.mounted) return;
+                                    Navigator.of(context).pop(true);
                                   },
                           ),
                         ),

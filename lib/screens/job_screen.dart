@@ -116,23 +116,30 @@ class _JobScreenState extends State<JobScreen> {
                       final bool isSelected = vicinity.row == selectedRow;
                       return TableViewCell(
                         child: GestureDetector(
-                          onLongPress: () {
+                          onLongPress: () async {
                             if (isHeader) return;
                             if (selectedRow != vicinity.row) {
                               selectedRow = vicinity.row;
                               setState(() {});
                             }
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => TrackingScreen(
-                                  job: snapshot.data![vicinity.row - 1],
-                                  fromSection:
-                                      Constants.dyeingById[widget.dyeingPart],
-                                  trackingList:
-                                      snapshot.data![vicinity.row - 1].tracking,
-                                ),
-                              ),
-                            );
+                            final bool refresh =
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => TrackingScreen(
+                                      job: snapshot.data![vicinity.row - 1],
+                                      fromSection: Constants
+                                          .dyeingById[widget.dyeingPart],
+                                      trackingList: snapshot
+                                          .data![vicinity.row - 1]
+                                          .tracking,
+                                    ),
+                                  ),
+                                ) ??
+                                false;
+                            if (refresh) {
+                              _future = getAllJobs(widget.dyeingPart);
+                              setState(() {});
+                            }
                           },
                           onTap: () {
                             if (isHeader) return;

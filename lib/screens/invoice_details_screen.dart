@@ -44,7 +44,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
           controller: _horizontalController,
           scrollbarOrientation: ScrollbarOrientation.bottom,
           child: TableView.builder(
-            diagonalDragBehavior: DiagonalDragBehavior.free,
+            // diagonalDragBehavior: DiagonalDragBehavior.free,
             horizontalDetails: ScrollableDetails(
               direction: AxisDirection.left,
               controller: _horizontalController,

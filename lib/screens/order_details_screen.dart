@@ -46,7 +46,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           controller: _horizontalController,
           scrollbarOrientation: ScrollbarOrientation.bottom,
           child: TableView.builder(
-            diagonalDragBehavior: DiagonalDragBehavior.free,
+            // diagonalDragBehavior: DiagonalDragBehavior.free,
             horizontalDetails: ScrollableDetails(
               direction: AxisDirection.left,
               controller: _horizontalController,
