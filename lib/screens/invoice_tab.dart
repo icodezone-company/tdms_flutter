@@ -228,12 +228,13 @@ class _InvoiceTabState extends State<InvoiceTab> {
     required DateTime toDate,
   }) async {
     print("get invoices");
+    print("customer name : $customerName");
     isLoading = true;
     setState(() {});
     try {
       Response res = await GetIt.I<Client>().get(
         Uri.parse(
-          "${Constants.getInvoices}?from_date=${fromDate.formateDateReverse}&to_date=${toDate.formateDateReverse}",
+          "${Constants.getInvoices}?from_date=${fromDate.formateDateReverse}&to_date=${toDate.formateDateReverse}&customer_name=$customerName",
         ),
       );
       isLoading = false;

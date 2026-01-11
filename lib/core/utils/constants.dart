@@ -28,6 +28,7 @@ class Constants {
   static const String getSummary = "$baseUrl/api/get_summary";
   static const String getReadyMaterialReport =
       "$baseUrl/api/get_ready_material_report";
+  static const String getCustomers = "$baseUrl/api/getCustomers";
 
   // Headers
   static const Map<String, String> headers = {

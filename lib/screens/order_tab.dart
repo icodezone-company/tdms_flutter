@@ -222,12 +222,13 @@ class _OrderTabState extends State<OrderTab> {
     required DateTime toDate,
   }) async {
     print("get orders");
+    print("customer: $customerName");
     isLoading = true;
     setState(() {});
     try {
       Response res = await GetIt.I<Client>().get(
         Uri.parse(
-          "${Constants.getDyeingOrderInvoice}?from_date=${fromDate.formateDateReverse}&to_date=${toDate.formateDateReverse}",
+          "${Constants.getDyeingOrderInvoice}?from_date=${fromDate.formateDateReverse}&to_date=${toDate.formateDateReverse}&customer_name=$customerName",
         ),
       );
       isLoading = false;

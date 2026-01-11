@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:tdms_flutter/core/utils/constants.dart';
+
+import '../core/utils/strings.dart';
+import '../models/customer.dart';
 
 class FilterBar extends StatefulWidget {
   const FilterBar({
@@ -25,12 +32,14 @@ class _FilterBarState extends State<FilterBar> {
   late DateTime fromDate;
   late DateTime toDate;
   late String customerName;
+  late Future<List<String>> _future;
 
   @override
   void initState() {
     fromDate = widget.fromDate;
     toDate = widget.toDate;
     customerName = widget.customerName;
+    _future = getAllCustomers();
     super.initState();
   }
 
@@ -40,7 +49,6 @@ class _FilterBarState extends State<FilterBar> {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-
         children: [
           Row(
             children: [
@@ -108,30 +116,49 @@ class _FilterBarState extends State<FilterBar> {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  initialValue: widget.customerName,
-                  items: ["الكل", "زبون 1", "زبون 2", "زبون 3"]
-                      .map(
-                        (c) => DropdownMenuItem<String>(
-                          value: c == "الكل" ? "" : c,
-                          child: Text(c),
+                child: FutureBuilder(
+                  future: _future,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting)
+                      return Center(child: CircularProgressIndicator());
+                    if (snapshot.hasError)
+                      return Center(
+                        child: IconButton(
+                          onPressed: () {
+                            _future = getAllCustomers();
+                            setState(() {});
+                          },
+                          icon: Icon(Icons.replay),
                         ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value == null) return;
-                    customerName = value;
+                      );
+                    if (snapshot.hasData)
+                      return DropdownButtonFormField<String>(
+                        initialValue: widget.customerName,
+                        items: ["الكل", ...snapshot.data!]
+                            .map(
+                              (c) => DropdownMenuItem<String>(
+                                value: c == "الكل" ? "" : c,
+                                child: Text(c),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value == null) return;
+                          customerName = value;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: "الزبون",
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
+                      );
+                    return SizedBox();
                   },
-                  decoration: const InputDecoration(
-                    labelText: "الزبون",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -154,5 +181,28 @@ class _FilterBarState extends State<FilterBar> {
         ],
       ),
     );
+  }
+
+  Future<List<String>> getAllCustomers() async {
+    try {
+      Response res = await GetIt.I<Client>().get(
+        Uri.parse(Constants.getCustomers),
+      );
+      if (res.statusCode == 200) {
+        List data = jsonDecode(res.body);
+        List<Customer> customers = [];
+        for (final Map<String, dynamic> json in data)
+          customers.add(Customer.fromJson(json));
+        return customers.map((customer) => customer.custName).toList();
+      } else if (res.statusCode == 400) {
+        return Future.error(jsonDecode(res.body)["message"]);
+      } else {
+        return Future.error(
+          Strings.unknownError(statusCode: res.statusCode, body: res.body),
+        );
+      }
+    } catch (e) {
+      return Future.error(Strings.unexpectedError);
+    }
   }
 }
